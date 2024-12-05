@@ -1,0 +1,641 @@
+---
+title: "Google Data Analytics Capstone Project"
+author: "João Rafael Pinato"
+date: "2022-15-19"
+output: html_document
+---
+  
+  
+  
+###Introduction
+  
+  This is a case study based on a fictional bike-share company and its struggle to convert its users to their year long plan.
+You can access the full case study by the [following link] (https://d3c33hcgiwev3.cloudfront.net/aacF81H_TsWnBfNR_x7FIg_36299b28fa0c4a5aba836111daad12f1_DAC8-Case-Study-1.pdf?Expires=1655251200&Signature=ka8moQNWCB0lGdgRbpCneLXf4EN4PtfsymTZ3Wwqkoq6SUwEI95BTSXioxgD3Qiv3B9IIp7mb4sGnDZrkWiic-2a6zIxqWoLgHh9izHx09VdPm9n3U7b7TCUuwCRuubMVFi5-pl-eZTz2SMWr0519mjyyJAKPvU~j96otqSZ2eI_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
+
+  The director of marketing has set a clear goal: To design marketing strategies aimed at converting casual riders into annual members. She then asked three questions that will guide the future marketing program:
+  1. How do annual members and casual riders use Cyclistic bikes differently?
+  2. Why would casual riders buy Cyclistic annual memberships?
+  3. How can Cyclistic use digital media to influence casual riders to become members?
+  
+  The first question has been assigned to me, a junior data analyst member of the cyclistic marketing analytics team: How do annual members and casual riders use Cyclistic bikes differently?
+  
+  A report has to be presented to Cyclistic’s director of marketing, the marketing analytics team and executive team (notoriously detail-oriented).The report is to be tailored with the following deliverables: 
+  1. A clear statement of the business task 
+2. A description of all data sources used 
+3. Documentation of any cleaning or manipulation of data 
+4. A summary of your analysis 
+5. Supporting visualizations and key findings 
+6. Your top three recommendations based on your analysis
+
+### How do annual members and casual riders use Cyclistic bikes differently?
+
+  “This analysis is aimed to provide accurate representation of the differences between the usage patterns of its users to support the marketing team's data driven decisions in order to convert casual riders into annual members.”
+------------------------------------------------------------------------
+
+
+### Preparation:
+
+  I’ve started by doing a general brainstorm of the task to better understand the full picture, and then I’ve looked into what digital marketing is and how it can be used on this specific task by pinpointing the scope of the task: “to convert casuals into annual users”
+There is no need to deviate from the task by thinking of potential-users or non-users, so we’ll focus on the actual users.
+All of the users make use of the app, dock bike locations and have a history of usage. So we will use this knowledge as a guideline for the task and recommendations 
+Digital marketing within the app aimed for the casuals.
+We need to understand the pattern of annuals and look within the casuals data to highlight the users that lie within the said pattern, or that have results that are close to it, so we could offer the annual membership to them showing with reason that it could be advantageous as they are approaching the typical annual user frequency of the usage of the bikes, etc.
+Casuals that lie outside of the pattern may be tourists or first timers that wouldn’t have a likely reason for the change.
+If we want to convert the ones that don’t have a reason for it we need to give the reason to make em purchase it. Adequate the annual plan to better suit the tourists and weekend users by upping the time limit that the user can ride without the need to dock the bike.
+We could also survey key casuals (within the pattern) in order to collect feedback on what's holding them down on upgrading their plan, consider their feedback and act on it.
+
+### Preparing the data 
+
+  For this analysis we’ve used the previous 12 months of cyclistic trip data equivalent of june/2021 to may/2022 available at Index of bucket "divvy-tripdata"
+
+  The files within the dataset are named “divvy” because they were provided by the company Divvy (https://ride.divvybikes.com/), it has been made available by Motivate International Inc under this license (https://ride.divvybikes.com/data-license-agreement), therefore it is a public dataset. For the sake of the case study we should consider that this is data from the Cyclistic historical trip data and that the naming within the files are “cyclistic” (date-cyclistic-tripdata.zip) and not “divvy” (date-divvy-tripdata.zip).
+The files are credible, they come from a real company that made the data public by anonymizing it and removing any personal information, and aren’t biased as they represent the whole population of cyclistic members. 
+It fits the ROCCC as they are reliable, original, comprehensive, current and cited.
+
+  The database’s latest files seem to have significant changes compared to the early versions. 
+There is no change log, the files are named with inconsistent casing for each time period and also represent different time frames from year, double quarter, sole quarter and then months. This indicates that the overall data could be subjected to a standardization inorder to ease the company's future analysis.
+This information is to be noted and reported.
+
+  After selecting all the latest 12 months of data, it is to note that all the selected data for the desired period has consistent naming and doesn't appear to have any inconsistencies.
+
+Reading between the lines 
+  I was able to find Divvy's website through the license link provided by the case study. The website’s information isn’t clearly cyted but it can be accessed within the various links provided and it does feels essential in order to bring context to the case, helping state the obvious questions of what is a bike share company, and how their business model operates (the differences within the plans for single use, day pass or annual membership, etc).
+Since all Divvy’s data is to be treated as it was Cyclistic’s data I’ll apply the same logic to their website https://ride.divvybikes.com/
+
+***********************************
+## Starting the Analysis
+
+  Tools: RStudio Desktop and Tableau Public.
+
+## R
+  R is a great tool when there is a need to clean, analyze and graph large datasets
+
+
+### Installing the required packages
+
+```{r}
+install.packages("tidyverse")
+install.packages("janitor")
+install.packages("skimr")
+install.packages("lubridate")
+install.packages("dplyr")
+```
+
+### Loading the required packages
+
+```{r}
+library(tidyverse) #data analysis
+library(lubridate) #date and time manipulation
+library(janitor) #data cleaning
+library(skimr) #data structure investigation
+library(dplyr) #data manipulation
+```
+
+### Collecting Cyclistic Data
+
+
+```{r, show_col_types = FALSE, message=FALSE}
+may2022 <- read.csv('202205-divvy-tripdata.csv')
+apr2022 <- read.csv('202204-divvy-tripdata.csv')
+mar2022 <- read.csv('202203-divvy-tripdata.csv')
+feb2022 <- read.csv('202202-divvy-tripdata.csv')
+jan2022 <- read.csv('202201-divvy-tripdata.csv')
+dec2021 <- read.csv('202112-divvy-tripdata.csv')
+nov2021 <- read.csv('202111-divvy-tripdata.csv')
+oct2021 <- read.csv('202110-divvy-tripdata.csv')
+sep2021 <- read.csv('202109-divvy-tripdata.csv')
+aug2021 <- read.csv('202108-divvy-tripdata.csv')
+jul2021 <- read.csv('202107-divvy-tripdata.csv')
+jun2021 <- read.csv('202106-divvy-tripdata.csv')
+```
+
+### Checking for consistency on each column
+
+#Ensuring that the columns match perfectly before we can use a command to join them into one file
+
+```{r}
+compare_df_cols_same(may2022, apr2022, mar2022, feb2022, jan2022, dec2021, nov2021, oct2021, sep2021, aug2021, jul2021, jun2021)
+```
+
+### Combining all the data into a single table
+
+```{r}
+full_data <- bind_rows(may2022, apr2022, mar2022, feb2022, jan2022, dec2021, nov2021, oct2021, sep2021, aug2021, jul2021, jun2021)
+```
+
+### Inspecting the new dataset
+
+```{r}
+skim_without_charts(full_data) #checking it’s structure
+```
+
+```{r}
+head(full_data) #checking a sample of the table
+```
+
+```{r}
+glimpse(full_data) #return summaries of each column in the table
+```
+
+```{r}
+colnames(full_data) #list of the column names
+```
+
+### Observations
+
+
+  Each row represents a trip, and it is identified by it’s id, there are no duplicates.
+What’s a trip? There are 2 types of trips: the usual consists of the action of unlocking the bike on a cyclistic station, riding it and then locking it on a station after or in between use.The second is exclusive for the electric bikes, and it's the period of use, disregarding doc stations, as the electric bike can be parked basically anywhere within the chicago area after its use for a extra fee [Electric bike info] (https://divvybikes.com/HOW-IT-WORKS/EBIKE-temp).
+Cyclistic encourages the user to switch bikes every few minutes as a prerequisite of their plan, so each trip doesn’t represent the full ride of the user, but a unique ride to the dock station.
+  Since the data has been anonymized there is no way to account for the daily usage of individual users (there is no user_id), for example one could take multiple trips in order to meet its final destination, but instead of the full trip we are stuck comparing each individual trip that accounts for the time between unlocking and docking the bikes.
+
+
+### Problems with the data
+
+  That are missing values within the dataset. 
+-   `start_station_name`
+-   `start_station_id`
+-   `end_station_name`
+-   `end_station_id`
+-   `end_lat`
+-   `end_lng`
+  Only the columns with information related to the stations have missing values. This should be noted and reported to the analytics team;
+
+-   I’ll add a new column named ride_length with the difference between ended_at and started_at
+-   I’ll add a new column date based on the started_at info, and then split into into 4 other columns: year, month, day, day_of_week
+
+### Data's ability to address the Business Task
+
+  The data can tell us about the difference in usage of casual riders and annual members in terms of:
+  
+-   the type of bike
+-   trip duration
+-   timeframe of the trip
+-   trip start station
+-   trip end station
+-   trends by a timeframe (min/hour/day/week/month)
+-   total share of active casual riders and annual members
+
+------------------------------------------------------------------------
+  
+###  Data Manipulation
+  
+  
+### Adding columns
+  
+### Adding the `ride_length` column in seconds
+  
+```{r}
+full_data$ride_length <- difftime(full_data$ended_at,full_data$started_at)
+```
+
+### Adding columns for date and then narrowing it down to day, day_of_week, month and year
+
+```{r}
+full_data$date <- as.Date(full_data$started_at) #adding trip start date column
+full_data$day <- format(as.Date(full_data$date), "%d") #adding day column
+full_data$day_of_week <- format(as.Date(full_data$date), "%a") #adding weekday column
+full_data$month <- format(as.Date(full_data$date), "%b") #adding month column
+full_data$year <- format(as.Date(full_data$date), "%Y") #adding year column
+```
+
+
+### Inspect the dataframe
+
+```{r}
+skim_without_charts(full_data) #getting summary statistics
+```
+
+```{r}
+glimpse(full_data) #Inspecting the column data types
+```
+
+
+```{r}
+min(full_data$ride_length)
+
+max(full_data$ride_length)
+```
+
+
+
+### Observations
+
+-   The minimum value of `ride_length` is -3482 seconds, a negative value, thus making it invalid
+-   The maximum value of `ride_length` is 3356649 seconds (932.4 hrs), which is an outlier
+-   We need to convert `ride_length` to numeric to perform calculations on it
+
+### Data Transformation
+
+### Converting `ride_length` to numeric data type
+
+```{r}
+full_data$ride_length <- as.numeric(full_data$ride_length)
+```
+
+### Checking if `ride_length` is converted to numeric
+
+```{r}
+is.numeric(full_data$ride_length)
+```
+
+### Data Cleaning : Removing Bad Data
+  Both the min and max values of `ride_length` are way off,
+The min value of the `ride_length` is negative, therefore invalid, it indicates that the data needs to be cleaned, for that we will use a command that discards any value from `ride_length` that is less than 60 seconds. The 60 seconds rule is based on the website’s information that any ride that is less than 60 seconds could indicate potentially false starts or users trying to re-dock a bike to ensure it was secure [Link to the website] (https://ride.divvybikes.com/system-data)
+We need to look with a little more depth on Cyclistics pricing on its programs in order to understand why max value of the `ride_length` is off, here is some information for context:
+[Link to the website](https://ride.divvybikes.com/pricing)
+[Single Ride Details](https://ride.divvybikes.com/pricing/single-ride)
+[Day Pass Details](https://divvybikes.com/pricing/day-pass)
+[Annual Membership Details](https://account.divvybikes.com/access-plans)
+  The expected value by contract per ride for a member is 45min and for 3h for casuals, with the possibility of paying an extra 0,15 us dollars per minute.
+I’ve then calculated the amount of extra time that would be the equivalent of the contracted value per day plus the extra of the same amount of time.
+single (casual): 30min, $3.3, 22min
+day (casual): 3h, $15 - 1h40min
+annual (member): 45min,  $0,3 - 2min
+cost of lost/stolen bike: $1200 - 8000min
+  Since there is no way to contact the team to confirm what's the real valid expectation of the ride length I’ll cap the max value of the `ride_length` at 12 hours, because even though it is unlikely (and the extra fee would be equivalent to roughly 75 dollars), it is a good margin to be working with and it’s not too far of the expected values.
+
+  Rides with `end_lat` or `end_lng` are considered invalid as there must’ve been a system error.
+  Rides with NA's in station names but with `end_lat` or `end_lng` could’ve been valid if the bike of choice is electric, otherwise it could indicate a system error.      After a quick inspection of the table it was clear that the missing info wasn’t exclusive to the electric bike type, so for the sake of the analysis I’ve promptly discarded all the NA’s.
+
+
+  We will create a new version of the dataframe (v2) since data is being removed.
+
+### Removing negative `ride_length`, `ride_length` less than 60 seconds and `ride_length` greater than 12 hrs
+Removing rides with NA's in `end_lat` or `end_lng`
+
+```{r}
+full_data_v2 <- full_data %>% 
+  filter(!(ride_length<60)) %>% 
+  filter(!(ride_length>43200))
+  
+  full_data_v3 <- full_data_v2 %>%
+  filter(!(is.na(end_lng)) | !(is.na(end_lat))) %>% 
+  filter(!(is.na(start_station_name)) | !(is.na(end_station_name)))
+
+skim_without_charts(full_data_v3) #getting summary statistics
+
+```
+write.csv(full_data_v3, file = "C:/Users/jrpin/Desktop/Docs/full_data_v3.csv")
+
+### Checking minimum `ride_length`
+
+```{r}
+min(full_data_v2$ride_length)
+```
+
+### 3.4.2 Checking maximum `ride_length`
+
+```{r}
+max(full_data_v2$ride_length)
+```
+
+-   All rides with `ride_length` less than 60 seconds or greater than 12 hrs have been removed
+
+### Removing rides with NA's in `end_lat` or `end_lng`
+
+
+```{r}
+full_data_v2 %>% 
+  filter(!(is.na(end_lng)) | !(is.na(end_lat)))
+```
+
+### Inspecting the dataframe
+
+```{r}
+skim_without_charts(full_data_v2)
+```
+
+-   All rides with NA's in `end_lat` or `end_lng` have been removed
+
+### Checking the ride length
+
+```{r}
+summary(full_data_v2$ride_length)
+```
+
+-   Average `ride_length` for rides with NA in `start_station_name` or `end_station_name` is 692 seconds (11,53 min).
+
+
+### Analyzing and Visualizing the Data 
+
+### Summarizing the data
+
+```{r}
+summary(full_data_v2)
+```
+
+### Descriptive analysis on `ride_length` (all figures in seconds)
+
+```{r}
+summary(full_data_v2$ride_length)
+```
+
+### Key insights:
+
+-   **Average `ride_length` of all rides is 692 sec
+
+-   **Minimum `ride_length` of all rides is 60 sec
+
+-   **Maximum `ride_length` of all rides is 43193 sec
+
+###  Comparing casual riders and annual members
+
+### Descriptive analysis on `ride_length`
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual) %>% 
+  summarise(average_ride_length=mean(ride_length), median_ride_length=median(ride_length), min_ride_length=min(ride_length), max_ride_length=max(ride_length))
+```
+
+### Visualizing Average `ride_length`
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual) %>% 
+  summarise(average_ride_length=mean(ride_length)) %>% 
+  ggplot() + geom_bar(mapping = aes(x=member_casual, y=average_ride_length, fill=member_casual), stat='identity', width = 0.3)+ 
+  labs(title = "Average ride length member x casual", x="User type", y="Average ride length") + coord_flip() + scale_fill_manual(values = c("#E69F00", "#999999"))
+```
+
+### Key insights:
+
+
+-   **Average `ride_length` of casual rides is almost double of the amount compared to the rides of members**.
+
+### 4.3.3 Analyzing total no. of rides
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual) %>% 
+  summarise(number_of_rides = n())
+```
+
+### Visualizing no. of rides and type of bike for each user type
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual, rideable_type) %>% 
+  summarise(number_of_rides = n()) %>% 
+  ggplot() + geom_bar(mapping = aes(x=member_casual, y=number_of_rides, fill= rideable_type), stat='identity', width = 0.4)+
+  labs(title = "what's the share of each bike type?", x="", y="number of rides") + scale_fill_brewer(palette = "Set2")
+```
+
+### Key insights:
+
+-   **Overall, the total no. of member rides is more than total no. of casual rides**
+
+-   **classic_bike type is the most used type of bike by both riders followed by electric bike**
+
+-   **docked_bike is only used by casual riders**
+
+### 4.3.5 Total no. of monthly rides by each member_casual
+
+```{r}
+full_data_v2 <- full_data_v2 %>%
+  mutate(month =factor(month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")))
+full_data_v3 %>% 
+  group_by(member_casual, month) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual)
+```
+
+### Visualizing the total no. of monthly rides for each member_casual
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual, month) %>% 
+  summarise(number_of_rides = n()) %>% 
+  ggplot(aes(x=month, y=number_of_rides, group=member_casual, color=member_casual)) + geom_line(size=1.1) + geom_point(size=2.2)+ labs(title = "Number of monthly rides for each user type", x="Month", y="Number of rides") + scale_color_manual(values = c("#E69F00", "#999999"))
+```
+
+### Key insights:
+
+-   **Casual trips are highest in June, July and August, surpassing the member trips in these 3 months and then considerably declining till January**
+  
+-   **Member trips are highest in July, August and September and then considerably declining till January**
+  
+-   **December, January and February have the lowest trips for both user types**
+  
+### 4.3.7 Total no. of rides by day_of_week
+  
+```{r}
+full_data_v2 <- full_data_v2 %>% 
+  mutate(day_of_week = factor(day_of_week, levels = c("domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado")))
+full_data_v2 %>% 
+  group_by(member_casual, day_of_week) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual)
+```
+
+### Visualizing the total no. of rides by day_of_week
+
+```{r}
+full_data_v2 <- full_data_v2 %>% 
+  mutate(day_of_week = factor(day_of_week, levels = c("Mon","Tue","Wed","Thu","Fri","Sat","Sun")))
+full_data_v2 %>% 
+  group_by(member_casual, day_of_week) %>% 
+  summarise(number_of_rides = n()) %>% 
+  ggplot(aes(x=day_of_week, y=number_of_rides, fill=member_casual)) + geom_col(position = "dodge") +
+  labs(title = "Number of rides for each user type by weekday", x="Weekday", y="Number of rides") + scale_fill_manual(values = c("#E69F00", "#999999"))
+```
+
+### Key insights:
+
+-   **Casual rides are highest on Weekends- Saturday and Sunday**
+  
+-   **Member rides are highest on weekdays and lowest on weekends**
+  
+-   **Casual rides are much less than member rides on weekdays and more than member rides on weekends**
+  
+### Average ride length by day_of_week
+  
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual, day_of_week) %>% 
+  summarise(average_ride_length = mean(ride_length)) %>% 
+  arrange(member_casual)
+```
+
+### Visualizing the average ride length by day_of_week
+
+```{r}
+full_data_v2 %>% 
+  group_by(member_casual, day_of_week) %>% 
+  summarise(average_ride_length = mean(ride_length)) %>% 
+  ggplot(aes(x=day_of_week, y=average_ride_length, fill=member_casual)) + geom_col(position = "dodge") +
+  labs(title = "Average ride length for each user type by weekday", x="Weekday", y="Average ride length") + scale_fill_manual(values = c("#E69F00", "#999999"))
+```
+
+### Key insights:
+
+-   **Average ride length of casual rides is highest on weekends**
+  
+-   **Average ride length of member rides remains considerably same throughout the week**
+  
+-   **Sunday has the maximum average ride length for both user types**
+  
+  
+### Top 5 ride starting stations for casual user type
+  
+```{r}
+full_data_v2 %>% 
+ filter(!(is.na(start_station_name))) %>% #filtering out NA's 
+ filter(member_casual == "casual") %>% 
+ group_by(start_station_name) %>% 
+ summarise(number_of_rides =n()) %>% 
+ arrange(-number_of_rides) %>% 
+ top_n(5) 
+```
+
+### Visualizing Top 5 ride starting stations for casual user type , RETIRAR STATIONS NA
+
+```{r}
+full_data_v2 %>% 
+  filter(!(is.na(start_station_name))) 
+
+full_data_v2 %>% 
+  filter(member_casual == "casual") %>% 
+  group_by(start_station_name) %>% 
+  summarise(number_of_rides= n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) %>% 
+  mutate(start_station_name= fct_reorder(start_station_name, number_of_rides)) %>% 
+  ggplot(mapping = aes(x=start_station_name, y=number_of_rides, fill=number_of_rides)) + geom_bar(stat = 'identity') + coord_flip() + labs(title = "Top 5 ride starting stations for casual rides", x="Start Station Name", y="Number of rides") + scale_fill_gradient(low = "dark grey", high = 'darkgoldenrod1')
+```
+
+### Top 5 ride ending stations for casual user type
+
+```{r}
+full_data_v2 %>% 
+  filter(!(is.na(end_station_name))) %>% 
+  filter(member_casual == "casual") %>% 
+  group_by(end_station_name) %>% 
+  summarise(number_of_rides =n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) 
+```
+
+### Visualizing Top 5 ride ending stations for casual user type
+
+```{r}
+full_data_v3 %>% 
+  filter(!(is.na(end_station_name))) %>% 
+  filter(user_type == "casual") %>% 
+  group_by(end_station_name) %>% 
+  summarise(number_of_rides= n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) %>% 
+  mutate(end_station_name= fct_reorder(end_station_name, number_of_rides)) %>% 
+  ggplot(mapping = aes(x=end_station_name, y=number_of_rides, fill=number_of_rides)) + geom_bar(stat = 'identity') + coord_flip() + labs(title = "Top 5 ride ending stations for casual rides", x="End Station Name", y="Number of rides") + scale_fill_gradient(low = "dark grey", high = 'darkgoldenrod1')
+```
+
+### Key insights:
+
+-   **The top 5 ride starting stations and ride ending stations are same for casual riders.**
+  
+-   **These are the most popular places where casual rides start or end.**
+  
+### 4.3.17 Top 5 ride starting stations for member user type
+  
+```{r}
+full_data_v3 %>% 
+  filter(!(is.na(start_station_name))) %>% #filtering out NA's 
+  filter(user_type == "member") %>% 
+  group_by(start_station_name) %>% 
+  summarise(number_of_rides =n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) 
+```
+
+### Visualizing Top 5 ride starting stations for member user type
+
+```{r}
+full_data_v3 %>% 
+  filter(!(is.na(start_station_name))) %>% 
+  filter(user_type == "member") %>% 
+  group_by(start_station_name) %>% 
+  summarise(number_of_rides= n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) %>% 
+  mutate(start_station_name= fct_reorder(start_station_name, number_of_rides)) %>% 
+  ggplot(mapping = aes(x=start_station_name, y=number_of_rides, fill=number_of_rides)) + geom_bar(stat = 'identity') + coord_flip() + labs(title = "Top 5 ride starting stations for member rides", x="Start Station Name", y="Number of rides") + scale_fill_gradient(low = "dark grey", high = 'darkkhaki')
+```
+
+### 4.3.19 Top 5 ride ending stations for member user type
+
+```{r}
+full_data_v3 %>% 
+  filter(!(is.na(end_station_name))) %>% #filtering out NA's 
+  filter(user_type == "member") %>% 
+  group_by(end_station_name) %>% 
+  summarise(number_of_rides =n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) 
+```
+
+### Visualizing top 5 ride ending stations for member user type
+
+```{r}
+full_data_v3 %>% 
+  filter(!(is.na(end_station_name))) %>% 
+  filter(user_type == "member") %>% 
+  group_by(end_station_name) %>% 
+  summarise(number_of_rides= n()) %>% 
+  arrange(-number_of_rides) %>% 
+  top_n(5) %>% 
+  mutate(end_station_name= fct_reorder(end_station_name, number_of_rides)) %>% 
+  ggplot(mapping = aes(x=end_station_name, y=number_of_rides, fill=number_of_rides)) + geom_bar(stat = 'identity') + coord_flip() + labs(title = "Top 5 ride ending stations for member rides", x="End Station Name", y="Number of rides") + scale_fill_gradient(low = "dark grey", high = 'darkkhaki')
+```
+
+### Key insights:
+
+-   **The top 5 ride starting stations and ride ending stations are same for member riders as well.**
+  
+-   **The volume of casual rides from its top docking station is significantly more than volume of member rides from its top docking station**
+  
+  ------------------------------------------------------------------------
+  
+### STEP 5 : Export Summary file for further analysis 
+  
+### 5.1 Create a csv file that we will visualize in Tableau
+  
+```{r}
+write.csv(full_data_v3, file = "full_data_v3.csv")
+```
+
+### 5.2 [Link](https://public.tableau.com/app/profile/stuti.parakh/viz/GoogleDataAnalystCertificateCapstoneProject/Dashboard1) to the Interactive Tableau Dashboard
+
+------------------------------------------------------------------------
+  
+### STEP 6: Act
+  
+  This step involves stating conclusions from the analysis and giving recommendations to answer the business question based on the insights generated.
+
+### Conclusions from the analysis
+
+1.  The average ride length for casual rides is **30 minutes** which is more than double of that of member rides - **13 minutes**
+  
+2.  
+
+-   No. of **casual rides** are highest in **June, July and August** with its **peak in July** and lowest in December, January and February
+-   Therefore the results have a direct correlation to the northern hemisphere seasons of the year.
+-   No. of **member rides** are highest in **July, August and September** with its **peak in September** and lowest in December, January and February
+
+3.  
+
+-   Casual rides are highest on **weekends- Saturday and Sunday** with the highest **average ride lengths**
+-   Member rides are lowest on weekends
+
+4.  Both casual and member rides **peak in the afternoon time** ie. 12PM to 5PM
+
+5.  The top 5 ride starting and ending stations for casual users are- **Streeter Dr & Grand Ave, Millennium Park, Michigan Ave & Oak St, Shedd Aquarium and Theater on the Lake**
+  
+### Top three recommendations based on the analysis
+  
+1.  Instead of looking at the differences from casuals and annuals, we should focus on their similarities by making a profile based on patterns of usage of annuals and comparing it with the casuals to identify potential “natural fits” for the subscription model. That way marketing could pinpoint users that are a match, or a potential match to the pattern, as those users show the promise (supported by data) that could benefit from the annual subscription. With this information they could also make better use of surveys, promos, etc.
+
+2.  On the data: Standardize the database and keep a changelog. Report to the team often so that we can quickly address the errors for reliable results.
+
+3.  Also consider upping the weekend max ride time for annuals in order to adjust the plan to the casuals needs.
